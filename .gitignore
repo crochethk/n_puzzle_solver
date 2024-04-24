@@ -1,0 +1,6 @@
+res
+**---LOCAL**
+**/tmp
+**/__pycache__
+**/out
+.vscode
