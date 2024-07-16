@@ -52,8 +52,49 @@ class EightPuzzleGui(ttk.Frame):
 
     def _on_new_game(self):
         print("click: new game")
+        self.reset_game() #<<<<---- thats what should happen
+
+        # FIXME FIXME FIXME just for memory leak testing
+        # Memory leak test
+        # # for _ in range(50000):
+        # #     # self.board.del_fields()
+        # #     self.reset_game()
+        # #     insert_text(self.log_text, "1.0", lorem_10ln + "\n")
+        # FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
         pass
+
+    def reset_game(self):
+        # - [x] reset gameboard state
+        # - [x] reset logging area
+        self.board.set_default_state()
+        remove_text(self.log_text, "1.0", "end")
 
     def _on_mk_next_mv(self):
         print("click: next move")
+        insert_text(self.log_text, "1.0", "<--- new entry --->\n")
+
+        # FIXME FIXME FIXME just for memory leak testing
+        # Memory leak test
+        for _ in range(50000):
+            insert_text(self.log_text, "1.0", "<--- new entry --->\n")
+
+        # FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
         pass
+
+
+def remove_text(text_w: Text, start_idx: str, end_idx: str):
+    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+    # - we should actually backup text-state and restore it after changing content
+    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+    text_w.configure(state="normal")
+    text_w.delete(start_idx, end_idx)
+    text_w.configure(state="disabled")
+
+
+def insert_text(text_w: Text, at_idx: str, the_text: str):
+    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+    # - we should actually backup text-state and restore it after changing content
+    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+    text_w.configure(state="normal")
+    text_w.insert(at_idx, the_text)
+    text_w.configure(state="disabled")

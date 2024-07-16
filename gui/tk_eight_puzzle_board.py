@@ -3,6 +3,8 @@ from eight_puzzle import EightPuzzleBoard
 from gui.vec2 import Vec2
 from gui.item_highlighter import ItemHighlighter
 from tkinter import *
+
+
 def remove_border(tk_obj: Widget):
     tk_obj.configure({"borderwidth": 0, "highlightthickness": 0}),
 
@@ -14,46 +16,54 @@ class TkGameBoard(Canvas):
         self.field_size = Vec2(80)
         board_size = (self.field_size * 3) + TkGameBoardField.BORDER_WIDTH
 
+        super().__init__(parent, width=board_size.x, height=board_size.y, background="gray75", **kwargs)
+        remove_border(self)
+
         if from_epb is None:
             # from_state = [[1, 2, 3], [4, None, 6], [7, 8, 9]]
             from_epb = self.__class__.default_epb
 
-        super().__init__(parent, width=board_size.x, height=board_size.y, background="gray75", **kwargs)
-        remove_border(self)
-
+        # Init empty fields
+        epb = from_epb
         self.fields: list[list[TkGameBoardField]] = []
-        self.set_state(from_epb)
-    def del_fields(self):
-        self.delete("all")
-        self.fields.clear()
-
-    def set_default_state(self):
-        self.set_state(self.__class__.default_epb)
-
-    def set_state(self, epb: EightPuzzleBoard):
-        self.del_fields()
-
-        board_fields: list[list[TkGameBoardField]] = []
 
         cols = len(epb.state[0])
         rows = len(epb.state)
 
         for c in range(cols):
-            board_fields.append([])
+            self.fields.append([])
             for r in range(rows):
-                pos = self.field_size * Vec2(c, r)
+                pos = self.grid_position(c, r)
+                self.fields[c].append(TkGameBoardField(self, pos, self.field_size))
 
+        # Configure fields according to `from_epb`
+        self.set_state(from_epb)
+
+    def grid_position(self, col, row) -> Vec2:
+        return self.field_size * Vec2(col, row)
+
+    def set_default_state(self):
+        self.set_state(self.__class__.default_epb)
+
+    def set_state(self, epb: EightPuzzleBoard):
+        """
+        Reconfigures this canvas's items to match state represented by `epb`.
+        """
+        cols = len(epb.state[0])
+        rows = len(epb.state)
+
+        for c in range(cols):
+            for r in range(rows):
                 # Add numbering
                 field_val = epb.state[r][c]
 
-                board_fields[c].append(
-                    TkGameBoardField(self, pos, self.field_size,
-                                     text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(field_val)}"))
+                f = self.fields[c][r]
+
+                pos = self.grid_position(c, r)
+                self.itemconfigure(f.txt_id, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(field_val)}")
 
                 if field_val is None:
-                    self.itemconfigure(board_fields[c][r].bg_id, fill="")
-
-        self.fields = board_fields
+                    self.itemconfigure(f.bg_id, fill="")
 
 
 class TkGameBoardField:
@@ -80,7 +90,7 @@ class TkGameBoardField:
         self.bg_id: int = parent.create_rectangle(*rect_config)
 
         text_pos = p1 + size / 2
-        parent.create_text(text_pos.x, text_pos.y, text=text)
+        self.txt_id: int = parent.create_text(text_pos.x, text_pos.y, text=text)
 
         # transparent box on top. Workaround for cumbersome <Enter>/<Leave> behaviour
         # with "rectangle+text" + deferred eventpropagation on click-hold
