@@ -1,62 +1,70 @@
 from tkinter import *
 from tkinter import ttk
 
-from mock_text import lorem_10ln
+from gui.mock_text import lorem_10ln
 
-from vec2 import Vec2
-from item_highlighter import ItemHighlighter
+from eight_puzzle import EightPuzzleBoard
+from gui.vec2 import Vec2
+from gui.item_highlighter import ItemHighlighter
 
-WINDOW_POS = Vec2(50, 150)
-# WINDOW_POS = Vec2(-500, 150)
+# WINDOW_POS = Vec2(50, 150)
+WINDOW_POS = Vec2(-500, 150)
 
 
 def remove_border(tk_obj: Widget):
     tk_obj.configure({"borderwidth": 0, "highlightthickness": 0}),
 
 
-class GameBoard(Canvas):
-    def __init__(self, parent, **kwargs):
+class TkGameBoard(Canvas):
+    def __init__(self, parent, from_epb: EightPuzzleBoard | None = None, ** kwargs):
         """
         FIXME: 
         - add arg "board_state" which shall be the initial board_state (see search algos)
         - use that state to initialize the fields accordingly
         """
         field_size = Vec2(80)
-        board_size = (field_size * 3) + GameBoardField.BORDER_WIDTH
+        board_size = (field_size * 3) + TkGameBoardField.BORDER_WIDTH
+
+        if from_epb is None:
+            # from_state = [[1, 2, 3], [4, None, 6], [7, 8, 9]]
+            from_epb = EightPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
+        # state = from_epb.state
 
         super().__init__(parent, width=board_size.x, height=board_size.y, background="gray75", **kwargs)
         remove_border(self)
 
-        board_fields: list[list[GameBoardField]] = []
+        self.set_state(from_epb, field_size)
 
-        cols = range(3)
-        rows = range(3)
+    def set_state(self, epb: EightPuzzleBoard, field_size: float):
+        board_fields: list[list[TkGameBoardField]] = []
 
-        for i in cols:
+        cols = len(epb.state[0])
+        rows = len(epb.state)
+
+        for c in range(cols):
             board_fields.append([])
-            for j in rows:
-                pos = field_size * Vec2(i, j)
+            for r in range(rows):
+                pos = field_size * Vec2(c, r)
 
                 # Add numbering
-                num = 1 + i + 3 * j
+                # num = 1 + c + cols * r
+                field_val = epb.state[r][c]
 
-                # skip center field
-                num = "" if num == 5 else (num if num < 5 else num - 1)
+                board_fields[c].append(
+                    TkGameBoardField(self, pos, field_size, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(field_val)}"))
 
-                board_fields[i].append(
-                    GameBoardField(self, pos, field_size, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(num)}"))
+                if field_val is None:
+                    self.itemconfigure(board_fields[c][r].id, fill="")
 
         self.fields = board_fields
-        self.itemconfigure(board_fields[1][1].id, fill="")
-        # board_canvas.move(board_fields[0][2], 120, -40)
 
     # TODO: add methods specific to board gui behaviour
 
 
-class GameBoardField:
+class TkGameBoardField:
     BORDER_WIDTH = 7
 
-    def __init__(self, parent: GameBoard, pos: Vec2, size: Vec2, text=""):
+    def __init__(self, parent: TkGameBoard, pos: Vec2, size: Vec2, text=""):
         """
         - `pos` - The positon of the top left corner
         - `size` - Size of the field
@@ -167,7 +175,7 @@ if __name__ == "__main__":
     # board
 
     # (parent)
-    game_board = GameBoard(main_frame)
+    game_board = TkGameBoard(main_frame)
     game_board.grid(row=1, column=0)
 
     # log frame
