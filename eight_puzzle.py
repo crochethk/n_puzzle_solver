@@ -110,7 +110,7 @@ class EightPuzzleBoard:
         return EightPuzzleBoard(pieces)
 
 
-class EightPuzzle:
+class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" and "EightPuzzleGame"
     def __init__(
             self,
             initial_board: EightPuzzleBoard,
@@ -180,3 +180,13 @@ class EightPuzzle:
 
         print(f"Expansions to finish: {counter}")
         return best_history
+
+    def renew_game(self, new_start: EightPuzzleBoard = None, new_goal: EightPuzzleBoard = None):
+        """
+        Resets this puzzle intance and its solver. If `new_start` board is not provided
+        a randomized will be set. if `new_goal` is not provided the current `goal_board`
+        is preserved.
+        """
+        self.board = EightPuzzleBoard.random_board() if new_start is None else new_start
+        self.search_strategy.reset()
+        self.goal_board = self.goal_board if new_goal is None else new_goal

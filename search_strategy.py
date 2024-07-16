@@ -41,6 +41,12 @@ class SearchStrategyBase:
     def path_cost(self, history: list):
         return 0 if history is None else len(history)
 
+    def reset(self):
+        """
+        Resets internal state of this strategy, so it can be reused again.
+        """
+        self.queue = self.queue.__class__()
+
 
 class DepthFirstSearch(SearchStrategyBase):
     """
