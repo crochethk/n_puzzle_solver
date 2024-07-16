@@ -66,9 +66,7 @@ class EightPuzzleGui(ttk.Frame):
         pass
 
     def reset_game(self):
-        # - [x] reset gameboard state
-        # - [x] reset logging area
-        self.board.set_default_state()
+        self.board.set_state(self.game.board)
         remove_text(self.log_text, "1.0", "end")
 
     def _on_mk_next_mv(self):

@@ -9,6 +9,10 @@ def remove_border(tk_obj: Widget):
     tk_obj.configure({"borderwidth": 0, "highlightthickness": 0}),
 
 
+FIELD_BG_CLR = "light green"
+FIELD_HL_CLR = "green"
+
+
 class TkGameBoard(Canvas):
     default_epb = EightPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
 
@@ -34,7 +38,8 @@ class TkGameBoard(Canvas):
             self.fields.append([])
             for r in range(rows):
                 pos = self.grid_position(c, r)
-                self.fields[c].append(TkGameBoardField(self, pos, self.field_size))
+                self.fields[c].append(
+                    TkGameBoardField(self, pos, self.field_size, from_epb.state[c][r]))
 
         # Configure fields according to `from_epb`
         self.set_state(from_epb)
@@ -54,43 +59,44 @@ class TkGameBoard(Canvas):
 
         for c in range(cols):
             for r in range(rows):
-                # Add numbering
                 field_val = epb.state[r][c]
-
                 f = self.fields[c][r]
-
-                pos = self.grid_position(c, r)
-                self.itemconfigure(f.txt_id, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(field_val)}")
-
-                if field_val is None:
-                    self.itemconfigure(f.bg_id, fill="")
+                f.set_value(field_val)
 
 
 class TkGameBoardField:
     BORDER_WIDTH = 7
 
-    def __init__(self, parent: TkGameBoard, pos: Vec2, size: Vec2, text=""):
+    def set_value(self, value: int | None):
+        """
+        Sets this field's value, which decides about text and appearance.
+        """
+        bg_color = "" if value is None else FIELD_BG_CLR
+        self.parent.itemconfigure(self.bg_id, fill=bg_color)
+        pos = self.pos
+        self.parent.itemconfigure(self.txt_id, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(value)}")
+
+    def __init__(self, parent: TkGameBoard, pos: Vec2, size: Vec2, value: int | None):
         """
         - `pos` - The positon of the top left corner
         - `size` - Size of the field
-        - `test` - Optional text content
+        - `value` - The value this field should represent
         """
         self.parent = parent
 
-        self.bg_color = "light green"
         p1 = pos + Vec2(self.BORDER_WIDTH) // 2
         p2 = p1 + size
 
         rect_config = (
             (p1.x, p1.y), (p2.x, p2.y),
-            {"fill": self.bg_color, "width": self.BORDER_WIDTH}
+            {"width": self.BORDER_WIDTH}
         )
 
         # id representing bg rectangle instance inside parent canvas
         self.bg_id: int = parent.create_rectangle(*rect_config)
 
         text_pos = p1 + size / 2
-        self.txt_id: int = parent.create_text(text_pos.x, text_pos.y, text=text)
+        self.txt_id: int = parent.create_text(text_pos.x, text_pos.y)
 
         # transparent box on top. Workaround for cumbersome <Enter>/<Leave> behaviour
         # with "rectangle+text" + deferred eventpropagation on click-hold
@@ -100,8 +106,10 @@ class TkGameBoardField:
             outline=""
         )
 
+        self.set_value(value)
+
         # hover hightlight effect
-        self.highlight = ItemHighlighter(self.parent, self.bg_id, "green")
+        self.highlight = ItemHighlighter(self.parent, self.bg_id, FIELD_HL_CLR)
         parent.tag_bind(enter_leave_box, "<Enter>", self._on_enter)
         parent.tag_bind(enter_leave_box, "<Leave>", self._on_leave)
 
@@ -111,11 +119,11 @@ class TkGameBoardField:
     def _on_leave(self, ev):
         self.highlight.disable()
 
-    # # # @property
-    # # # def pos(self) -> Vec2:
-    # # #     """Returns position of top left corner relative to the `parent` canvas."""
-    # # #     x, y, _, _ = self.parent.coords(self.id)
-    # # #     return Vec2(x, y)
+    @property
+    def pos(self) -> Vec2:
+        """Returns position of top left corner relative to the `parent` canvas."""
+        x, y, _, _ = self.parent.coords(self.bg_id)
+        return Vec2(x, y)
 
     # # # @property
     # # # def size(self) -> Vec2:
