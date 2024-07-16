@@ -1,34 +1,38 @@
-from gui.mock_text import lorem_10ln # TODO TODO TODO remove this later
-
-from tkinter import *
-from tkinter import ttk
 
 from eight_puzzle import EightPuzzleBoard
 from gui.vec2 import Vec2
 from gui.item_highlighter import ItemHighlighter
-
 from tkinter import *
-
-
 def remove_border(tk_obj: Widget):
     tk_obj.configure({"borderwidth": 0, "highlightthickness": 0}),
 
 
 class TkGameBoard(Canvas):
+    default_epb = EightPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
+
     def __init__(self, parent, from_epb: EightPuzzleBoard | None = None, **kwargs):
-        field_size = Vec2(80)
-        board_size = (field_size * 3) + TkGameBoardField.BORDER_WIDTH
+        self.field_size = Vec2(80)
+        board_size = (self.field_size * 3) + TkGameBoardField.BORDER_WIDTH
 
         if from_epb is None:
             # from_state = [[1, 2, 3], [4, None, 6], [7, 8, 9]]
-            from_epb = EightPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
+            from_epb = self.__class__.default_epb
 
         super().__init__(parent, width=board_size.x, height=board_size.y, background="gray75", **kwargs)
         remove_border(self)
 
-        self.set_state(from_epb, field_size)
+        self.fields: list[list[TkGameBoardField]] = []
+        self.set_state(from_epb)
+    def del_fields(self):
+        self.delete("all")
+        self.fields.clear()
 
-    def set_state(self, epb: EightPuzzleBoard, field_size: float):
+    def set_default_state(self):
+        self.set_state(self.__class__.default_epb)
+
+    def set_state(self, epb: EightPuzzleBoard):
+        self.del_fields()
+
         board_fields: list[list[TkGameBoardField]] = []
 
         cols = len(epb.state[0])
@@ -37,16 +41,17 @@ class TkGameBoard(Canvas):
         for c in range(cols):
             board_fields.append([])
             for r in range(rows):
-                pos = field_size * Vec2(c, r)
+                pos = self.field_size * Vec2(c, r)
 
                 # Add numbering
                 field_val = epb.state[r][c]
 
                 board_fields[c].append(
-                    TkGameBoardField(self, pos, field_size, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(field_val)}"))
+                    TkGameBoardField(self, pos, self.field_size,
+                                     text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(field_val)}"))
 
                 if field_val is None:
-                    self.itemconfigure(board_fields[c][r].id, fill="")
+                    self.itemconfigure(board_fields[c][r].bg_id, fill="")
 
         self.fields = board_fields
 
@@ -71,8 +76,8 @@ class TkGameBoardField:
             {"fill": self.bg_color, "width": self.BORDER_WIDTH}
         )
 
-        # id representing rectangle instance inside parent canvas
-        self.id = parent.create_rectangle(*rect_config)
+        # id representing bg rectangle instance inside parent canvas
+        self.bg_id: int = parent.create_rectangle(*rect_config)
 
         text_pos = p1 + size / 2
         parent.create_text(text_pos.x, text_pos.y, text=text)
@@ -82,11 +87,11 @@ class TkGameBoardField:
         enter_leave_box = parent.create_rectangle(
             *rect_config,
             fill="",
-            outline="",
+            outline=""
         )
 
         # hover hightlight effect
-        self.highlight = ItemHighlighter(self.parent, self.id, "green")
+        self.highlight = ItemHighlighter(self.parent, self.bg_id, "green")
         parent.tag_bind(enter_leave_box, "<Enter>", self._on_enter)
         parent.tag_bind(enter_leave_box, "<Leave>", self._on_leave)
 
@@ -96,14 +101,14 @@ class TkGameBoardField:
     def _on_leave(self, ev):
         self.highlight.disable()
 
-    @property
-    def pos(self) -> Vec2:
-        """Returns position of top left corner relative to the `parent` canvas."""
-        x, y, _, _ = self.parent.coords(self.id)
-        return Vec2(x, y)
+    # # # @property
+    # # # def pos(self) -> Vec2:
+    # # #     """Returns position of top left corner relative to the `parent` canvas."""
+    # # #     x, y, _, _ = self.parent.coords(self.id)
+    # # #     return Vec2(x, y)
 
-    @property
-    def size(self) -> Vec2:
-        """Returns size of this field calculated from `parent` canvas coords."""
-        x0, y0, x1, y1 = self.parent.coords(self.id)
-        return Vec2(x1, y1) - Vec2(x0, y0)
+    # # # @property
+    # # # def size(self) -> Vec2:
+    # # #     """Returns size of this field calculated from `parent` canvas coords."""
+    # # #     x0, y0, x1, y1 = self.parent.coords(self.id)
+    # # #     return Vec2(x1, y1) - Vec2(x0, y0)
