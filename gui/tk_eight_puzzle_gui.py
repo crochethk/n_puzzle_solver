@@ -1,3 +1,4 @@
+from eight_puzzle import EightPuzzle
 from gui.tk_eight_puzzle_board import TkGameBoard
 from gui.mock_text import lorem_10ln # TODO TODO TODO remove this later
 
@@ -7,7 +8,7 @@ from tkinter.scrolledtext import ScrolledText
 
 
 class EightPuzzleGui(ttk.Frame):
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, game: EightPuzzle, **kwargs):
         super().__init__(parent, **kwargs)
 
         #--- Buttons frame
@@ -31,7 +32,8 @@ class EightPuzzleGui(ttk.Frame):
         btns_frame.rowconfigure(0, weight=1)
 
         #--- game board
-        self.board = TkGameBoard(self)
+        self.game = game
+        self.board = TkGameBoard(self, self.game.board)
         self.board.grid(row=1, column=0)
 
         #--- log frame
@@ -75,8 +77,8 @@ class EightPuzzleGui(ttk.Frame):
 
         # FIXME FIXME FIXME just for memory leak testing
         # Memory leak test
-        for _ in range(50000):
-            insert_text(self.log_text, "1.0", "<--- new entry --->\n")
+        for i in range(50000):
+            insert_text(self.log_text, "1.0", f"<--- new entry --->{i + 1}\n")
 
         # FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
         pass

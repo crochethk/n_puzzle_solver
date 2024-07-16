@@ -2,8 +2,20 @@ from gui.tk_eight_puzzle_gui import EightPuzzleGui
 from gui.vec2 import Vec2
 from tkinter import *
 
+from eight_puzzle import EightPuzzle, EightPuzzleBoard
+from search_strategy import AStarSearch
+import eight_puzzle_heuristics as ep_heurs
+
+
+SEED = 42
+# SEED = None
+THE_INITIAL_BOARD = EightPuzzleBoard.random_board(SEED)
+THE_GOAL_BOARD = EightPuzzleBoard([[1, 2, 3], [8, None, 4], [7, 6, 5]])
+THE_STRATEGY = AStarSearch(THE_GOAL_BOARD, ep_heurs.cumulative_distance)
+
 # WINDOW_POS = Vec2(50, 150)
 WINDOW_POS = Vec2(-500, 150)
+
 
 if __name__ == "__main__":
     root = Tk()
@@ -18,7 +30,8 @@ if __name__ == "__main__":
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
 
-    game_gui = EightPuzzleGui(root, padding="3 3 3 3")
+    game = EightPuzzle(THE_INITIAL_BOARD, THE_GOAL_BOARD, THE_STRATEGY)
+    game_gui = EightPuzzleGui(root, game, padding="3 3 3 3")
     # Place game_gui in col=0, row=0 in the parent's (root) grid,
     # sticking to all four egdes of the cell, when grid is resized
     game_gui.grid(column=0, row=0, sticky=NSEW)
