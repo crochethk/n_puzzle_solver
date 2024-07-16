@@ -85,18 +85,14 @@ class EightPuzzleGui(ttk.Frame):
 
 
 def remove_text(text_w: Text, start_idx: str, end_idx: str):
-    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-    # - we should actually backup text-state and restore it after changing content
-    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+    original = text_w["state"]
     text_w.configure(state="normal")
     text_w.delete(start_idx, end_idx)
-    text_w.configure(state="disabled")
+    text_w.configure(state=original)
 
 
 def insert_text(text_w: Text, at_idx: str, the_text: str):
-    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-    # - we should actually backup text-state and restore it after changing content
-    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+    original = text_w["state"]
     text_w.configure(state="normal")
     text_w.insert(at_idx, the_text)
-    text_w.configure(state="disabled")
+    text_w.configure(state=original)
