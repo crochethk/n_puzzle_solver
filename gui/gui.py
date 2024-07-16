@@ -1,7 +1,6 @@
-from gui.tk_eight_puzzle_board import EightPuzzleGui, TkGameBoard
+from gui.tk_eight_puzzle_gui import EightPuzzleGui
 from gui.vec2 import Vec2
 from tkinter import *
-from tkinter import ttk
 
 # WINDOW_POS = Vec2(50, 150)
 WINDOW_POS = Vec2(-500, 150)
