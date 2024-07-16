@@ -1,8 +1,8 @@
+from tkinter import *
 
 from eight_puzzle import EightPuzzleBoard
 from gui.vec2 import Vec2
 from gui.item_highlighter import ItemHighlighter
-from tkinter import *
 
 
 def remove_border(tk_obj: Widget):

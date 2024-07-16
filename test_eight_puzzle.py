@@ -1,7 +1,8 @@
 import unittest
+
+import eight_puzzle_heuristics as epheur
 from eight_puzzle import EightPuzzleBoard as EPB
 from eight_puzzle import MoveDirection as mv
-import eight_puzzle_heuristics as epheur
 
 
 class TestHeuristics(unittest.TestCase):

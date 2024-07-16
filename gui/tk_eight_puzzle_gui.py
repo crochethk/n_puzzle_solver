@@ -1,10 +1,10 @@
-from eight_puzzle import EightPuzzle
-from gui.tk_eight_puzzle_board import TkGameBoard
-from gui.mock_text import lorem_10ln # TODO TODO TODO remove this later
-
 from tkinter import *
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
+
+from eight_puzzle import EightPuzzle
+from gui.tk_eight_puzzle_board import TkGameBoard
+from gui.mock_text import lorem_10ln # TODO TODO TODO remove this later
 
 
 class EightPuzzleGui(ttk.Frame):

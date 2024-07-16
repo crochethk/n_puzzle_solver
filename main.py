@@ -1,6 +1,6 @@
 from eight_puzzle import *  # EightPuzzleBoard, EightPuzzle
-from search_strategy import BreadthFirstSearch, DepthFirstSearch, AStarSearch
 import eight_puzzle_heuristics as ep_heurs
+from search_strategy import BreadthFirstSearch, DepthFirstSearch, AStarSearch
 
 
 def main():
