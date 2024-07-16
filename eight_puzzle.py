@@ -4,21 +4,22 @@ from copy import deepcopy
 from enum import Enum
 
 from search_strategy import SearchStrategyBase
+from vec2 import Vec2
 
 
 @functools.total_ordering
 class MoveDirection(Enum):
-    DOWN = (1, 0)
-    UP = (-1, 0)
-    RIGHT = (0, 1)
-    LEFT = (0, -1)
+    DOWN = Vec2(1, 0)
+    UP = Vec2(-1, 0)
+    RIGHT = Vec2(0, 1)
+    LEFT = Vec2(0, -1)
 
     def __repr__(self) -> str:
         return self.name.lower()
 
     def __lt__(self, other):
         # quick 'n dirty...
-        return self.value.__lt__(other.value)
+        return self.value._coords.__lt__(other.value._coords)
 
 
 class EightPuzzleBoard:
@@ -44,21 +45,15 @@ class EightPuzzleBoard:
     def __eq__(self, other: 'EightPuzzleBoard') -> bool:
         return self.state == other.state
 
-    def is_empty_field(self, row, col) -> bool:
+    def get_empty_field(self) -> Vec2:
         """
-        Checks whether field, specified by `row` and `col` indices, is empty.
+        Returns the position of the empty field.
         """
-        return self.state[row][col] is None
-
-    def get_empty_field(self) -> tuple[int, int]:
-        """
-        Returns a position of the empty field.
-        """
-        for row_idx, row in enumerate(self.state):
-            for col_idx in range(len(row)):
-                if self.is_empty_field(row_idx, col_idx):
-                    return (row_idx, col_idx)
-        raise ValueError("no empty field found in puzzle board state")
+        empty_pos = self.get_pos_of(None)
+        if empty_pos is None:
+            raise ValueError("no empty field found in puzzle board state")
+        else:
+            return empty_pos
 
     def next_valid_board_states(self, mv_history: list[MoveDirection]):
         """
@@ -71,9 +66,7 @@ class EightPuzzleBoard:
         empty_pos = self.get_empty_field()
 
         for mv_dir in MoveDirection:
-            target_pos = tuple(
-                pos + dir for pos, dir in zip(empty_pos, mv_dir.value)
-            )
+            target_pos = empty_pos + mv_dir.value
 
             if self.contains_pos(target_pos):
                 new_board = self.clone()
@@ -84,26 +77,26 @@ class EightPuzzleBoard:
                 boards.append((mv_hist, new_board))
         return boards
 
-    def swap_fields(self, field_1: tuple[int, int], field_2: tuple[int, int]) -> None:
+    def swap_fields(self, field_1: Vec2, field_2: Vec2) -> None:
         """
         Swaps content of field at `field_1` with `field_2`'s.
         """
-        f1_row, f1_col = field_1
-        f2_row, f2_col = field_2
+        f1_row, f1_col = (field_1.x, field_1.y)
+        f2_row, f2_col = (field_2.x, field_2.y)
         f1_tmp = self.state[f1_row][f1_col]
         self.state[f1_row][f1_col] = self.state[f2_row][f2_col]
         self.state[f2_row][f2_col] = f1_tmp
 
-    def contains_pos(self, position: tuple[int, int]):
-        r, c = position
+    def contains_pos(self, position: Vec2):
+        r, c = (position.x, position.y)
         return (r >= 0 and r < len(self.state) and
                 c >= 0 and c < len(self.state[0]))
 
-    def get_pos_of(self, target) -> tuple[int, int] | None:
+    def get_pos_of(self, target) -> Vec2 | None:
         for row_idx, row in enumerate(self.state):
             try:
                 col_idx = row.index(target)
-                return (row_idx, col_idx)
+                return Vec2(row_idx, col_idx)
             except ValueError:
                 continue
         return None
