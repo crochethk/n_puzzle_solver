@@ -3,6 +3,7 @@ from enum import Enum
 from search_strategy import SearchStrategyBase
 
 import functools
+import random
 
 
 @functools.total_ordering
@@ -106,6 +107,14 @@ class EightPuzzleBoard:
             except ValueError:
                 continue
         return None
+
+    @staticmethod
+    def random_board(seed=None) -> 'EightPuzzleBoard':
+        random.seed(seed)
+        pieces = [1, 2, 3, 4, 5, 6, 7, 8, None]
+        random.shuffle(pieces)
+        pieces = [pieces[i:i + 3] for i in range(0,9,3)]
+        return EightPuzzleBoard(pieces)
 
 
 class EightPuzzle:
