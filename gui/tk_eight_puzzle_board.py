@@ -3,10 +3,11 @@ from tkinter import ttk
 
 from mock_text import lorem_10ln
 
-from vec2 import *
+from vec2 import Vec2
+from item_highlighter import ItemHighlighter
 
-# WINDOW_POS = Vec2(50, 150)
-WINDOW_POS = Vec2(-500, 150)
+WINDOW_POS = Vec2(50, 150)
+# WINDOW_POS = Vec2(-500, 150)
 
 
 def remove_border(tk_obj: Widget):
@@ -41,9 +42,6 @@ class GameBoard(Canvas):
 
                 # skip center field
                 num = "" if num == 5 else (num if num < 5 else num - 1)
-                # # if num == 5:
-                # #     continue
-                # # num = num if num < 5 else num - 1
 
                 board_fields[i].append(
                     GameBoardField(self, pos, field_size, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(num)}"))
@@ -51,13 +49,6 @@ class GameBoard(Canvas):
         self.fields = board_fields
         self.itemconfigure(board_fields[1][1].id, fill="")
         # board_canvas.move(board_fields[0][2], 120, -40)
-
-        # TODO TODO TODO
-        # add event listeners, e.g.
-        #     ```py
-        #     self.bind("<Button-1>", self.save_posn)
-        #     self.bind("<B1-Motion>", self.add_line)
-        #     ```
 
     # TODO: add methods specific to board gui behaviour
 
@@ -68,27 +59,44 @@ class GameBoardField:
     def __init__(self, parent: GameBoard, pos: Vec2, size: Vec2, text=""):
         """
         - `pos` - The positon of the top left corner
-        - `size` - size of the field
+        - `size` - Size of the field
+        - `test` - Optional text content
         """
         self.parent = parent
 
+        self.bg_color = "light green"
         p1 = pos + Vec2(self.BORDER_WIDTH) // 2
         p2 = p1 + size
 
-        # id representing rectangle instance inside parent
-        self.id = self.parent.create_rectangle(
+        rect_config = (
             (p1.x, p1.y), (p2.x, p2.y),
-            fill="light green",
-            activefill="green",
-            width=self.BORDER_WIDTH
+            {"fill": self.bg_color, "width": self.BORDER_WIDTH}
         )
 
+        # id representing rectangle instance inside parent canvas
+        self.id = parent.create_rectangle(*rect_config)
+
         text_pos = p1 + size / 2
-        self.parent.create_text(
-            text_pos.x,
-            text_pos.y,
-            text=text
+        parent.create_text(text_pos.x, text_pos.y, text=text)
+
+        # transparent box on top, as workaround for cumbersome <Enter>/<Leave>
+        # behaviour with "rectangle+text" + deferred eventpropagation on click-hold
+        enter_leave_box = parent.create_rectangle(
+            *rect_config,
+            fill="",
+            outline="",
         )
+
+        # hover hightlight effect
+        self.highlight = ItemHighlighter(self.parent, self.id, "green")
+        parent.tag_bind(enter_leave_box, "<Enter>", self._on_enter)
+        parent.tag_bind(enter_leave_box, "<Leave>", self._on_leave)
+
+    def _on_enter(self, ev):
+        self.highlight.enable()
+
+    def _on_leave(self, ev):
+        self.highlight.disable()
 
     @property
     def pos(self) -> Vec2:
