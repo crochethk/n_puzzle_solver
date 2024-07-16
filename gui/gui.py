@@ -3,8 +3,8 @@ from tkinter import *
 import eight_puzzle_heuristics as ep_heurs
 from eight_puzzle import EightPuzzle, EightPuzzleBoard
 from gui.tk_eight_puzzle_gui import EightPuzzleGui
-from gui.vec2 import Vec2
 from search_strategy import AStarSearch
+from vec2 import Vec2
 
 
 SEED = 42
