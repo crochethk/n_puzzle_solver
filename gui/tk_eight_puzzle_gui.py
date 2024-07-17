@@ -43,6 +43,7 @@ class EightPuzzleGui(ttk.Frame):
         btns_frame.grid(row=0, column=0, sticky=EW)
 
         btns_frame.append_button("New", self._on_new_game)
+        btns_frame.append_button("Restart", self._on_restart_game)
         btns_frame.append_button("Next Move", self._on_mk_next_mv)
         btns_frame.build()
 
@@ -66,6 +67,15 @@ class EightPuzzleGui(ttk.Frame):
         # configure main frame grid weights
         self.columnconfigure(0, weight=1)
         self.rowconfigure(2, weight=1)
+
+    def _on_restart_game(self):
+        print("click: reset game")
+        self.restart_game()
+
+    def restart_game(self):
+        self.clear_log_text()
+        self.game.renew_game(self.game.board)
+        self.board.set_state(self.game.board)
 
     def _on_new_game(self):
         print("click: new game")
