@@ -32,10 +32,10 @@ class EightPuzzleBoard:
         _ = self.empty_field_pos()
 
     def __repr__(self) -> str:
-        s = ""
+        s = "["
         last_i = len(self.state) - 1
         for i, row in enumerate(self.state):
-            s += str(row) + ("\n" if i != last_i else "")
+            s += str(row) + ("," if i != last_i else "]")
         return s
 
     def clone(self) -> 'EightPuzzleBoard':
@@ -44,6 +44,10 @@ class EightPuzzleBoard:
 
     def __eq__(self, other: 'EightPuzzleBoard') -> bool:
         return self.state == other.state
+
+    def __hash__(self) -> int:
+        tp_state = tuple(tuple(row) for row in self.state)
+        return hash(tp_state)
 
     def empty_field_pos(self) -> Vec2:
         """
@@ -155,7 +159,7 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
         strategy = self.search_strategy
 
         strategy.apply([([], self.board)])
-        visited = []
+        visited = set()
         best_history: list[MoveDirection] = None
 
         counter = 0
@@ -165,6 +169,7 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
             entry: tuple[list, EightPuzzleBoard] = strategy.pop_state_entry()
 
             history, state = entry
+            visited.add(state)
 
             best_cost, curr_cost = (
                 strategy.path_cost(best_history),
@@ -183,11 +188,10 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
                 # dont branch any deeper, if already found solution is better than current path
                 continue
 
-            visited.append(state)
             candidates = state.next_valid_board_states(history)
-            candidates = [s for s in candidates if s[1] not in visited]
+            candidates = [(h, s) for h, s in candidates if s not in visited]
 
-            self.search_strategy.apply(candidates)
+            strategy.apply(candidates)
 
         print(f"Expansions to finish: {counter}")
         self.solution = best_history
