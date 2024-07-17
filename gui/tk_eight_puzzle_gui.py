@@ -54,7 +54,7 @@ class EightPuzzleGui(ttk.Frame):
 
     def _on_new_game(self):
         print("click: new game")
-        self.reset_game() #<<<<---- thats what should happen
+        self.new_random_game()
 
         # FIXME FIXME FIXME just for memory leak testing
         # Memory leak test
@@ -65,8 +65,12 @@ class EightPuzzleGui(ttk.Frame):
         # FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
         pass
 
-    def reset_game(self):
+    def new_random_game(self):
+        self.clear_log_text()
+        self.game.renew_game()
         self.board.set_state(self.game.board)
+
+    def clear_log_text(self):
         remove_text(self.log_text, "1.0", "end")
 
     def _on_mk_next_mv(self):
