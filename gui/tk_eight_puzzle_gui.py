@@ -4,7 +4,6 @@ from tkinter.scrolledtext import ScrolledText
 
 from eight_puzzle import EightPuzzle
 from gui.tk_eight_puzzle_board import TkGameBoard
-from gui.mock_text import lorem_10ln # TODO TODO TODO remove this later
 
 
 class InteractionLogPanel(ttk.LabelFrame):
@@ -78,8 +77,6 @@ class EightPuzzleGui(ttk.Frame):
         #--- Log panel
         self.log_panel = InteractionLogPanel(self, "Game Log", 40, 15)
         self.log_panel.grid(row=2, column=0, sticky=NSEW)
-
-        self.log_panel.add_message(lorem_10ln) #<---------- TODO remove this
 
         # configure main frame grid weights
         self.columnconfigure(0, weight=1)
