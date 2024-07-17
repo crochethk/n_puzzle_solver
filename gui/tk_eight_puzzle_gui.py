@@ -91,13 +91,18 @@ class EightPuzzleGui(ttk.Frame):
         self.board = TkGameBoard(self, self.game.board)
         self.board.grid(row=1, column=0)
 
+        goalb = TkGameBoard(self, self.game.goal_board)
+        goalb.grid(row=1, column=1)
+
         #--- Log panel
         self.log_panel = InteractionLogPanel(self, "Game Log", 40, 15)
-        self.log_panel.grid(row=2, column=0, sticky=NSEW)
+        self.log_panel.grid(row=2, column=0, columnspan=999, sticky=NSEW) # dirty: span all cols
 
         # configure main frame grid weights
         self.columnconfigure(0, weight=1)
         self.rowconfigure(2, weight=1)
+
+        self.prepare_game()
 
     def _on_restart_game(self):
         self.restart_game()
@@ -110,7 +115,7 @@ class EightPuzzleGui(ttk.Frame):
         self.prepare_game()
 
     def prepare_game(self):
-        """Prepares game for user interaction."""
+        """Prepares the game for user interaction."""
         self.controls_panel.disable_btn("next")
         if self.game.is_solvable():
             hist = self.game.solve(exhaustive_search=False)
