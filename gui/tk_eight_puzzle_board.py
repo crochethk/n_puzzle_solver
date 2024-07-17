@@ -67,16 +67,7 @@ class TkGameBoard(Canvas):
 
 
 class TkGameBoardField:
-    BORDER_WIDTH = 7
-
-    def set_value(self, value: int | None):
-        """
-        Sets this field's value, which decides about text and appearance.
-        """
-        bg_color = "" if value is None else FIELD_BG_CLR
-        self.parent.itemconfigure(self.bg_id, fill=bg_color)
-        pos = self.pos
-        self.parent.itemconfigure(self.txt_id, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(value)}")
+    BORDER_WIDTH = 5
 
     def __init__(self, parent: TkGameBoard, pos: Vec2, size: Vec2, value: int | None):
         """
@@ -98,7 +89,9 @@ class TkGameBoardField:
         self.bg_id: int = parent.create_rectangle(*rect_config)
 
         text_pos = p1 + size / 2
-        self.txt_id: int = parent.create_text(text_pos.x, text_pos.y)
+        self.txt_id: int = parent.create_text(
+            text_pos.x, text_pos.y, font=("Arial", 14, "bold")
+        )
 
         # transparent box on top. Workaround for cumbersome <Enter>/<Leave> behaviour
         # with "rectangle+text" + deferred eventpropagation on click-hold
@@ -114,6 +107,16 @@ class TkGameBoardField:
         self.highlight = ItemHighlighter(self.parent, self.bg_id, FIELD_HL_CLR)
         parent.tag_bind(enter_leave_box, "<Enter>", self._on_enter)
         parent.tag_bind(enter_leave_box, "<Leave>", self._on_leave)
+
+    def set_value(self, value: int | None):
+        """
+        Sets this field's value, which decides about text and appearance.
+        """
+        bg_color = "" if value is None else FIELD_BG_CLR
+        self.parent.itemconfigure(self.bg_id, fill=bg_color)
+        # pos = self.pos
+        # self.parent.itemconfigure(self.txt_id, text=f"x: {pos.x}\ny: {pos.y}\nnum: {str(value)}")
+        self.parent.itemconfigure(self.txt_id, text=str(value if value else ""))
 
     def _on_enter(self, ev):
         self.highlight.enable()
