@@ -74,6 +74,9 @@ class EightPuzzleGui(ttk.Frame):
     def __init__(self, parent, game: EightPuzzle, **kwargs):
         super().__init__(parent, **kwargs)
 
+        # counter for steps performed so far
+        self._step_cnt = 0
+
         #--- Buttons frame
         self.controls_panel = GameControls(
             self,
@@ -116,6 +119,7 @@ class EightPuzzleGui(ttk.Frame):
 
     def prepare_game(self):
         """Prepares the game for user interaction."""
+        self._step_cnt = 0
         self.controls_panel.disable_btn("next")
         if self.game.is_solvable():
             hist = self.game.solve(exhaustive_search=False)
@@ -137,9 +141,10 @@ class EightPuzzleGui(ttk.Frame):
     def _on_mk_next_mv(self):
         next_step = self.game.next_solution_step()
         if next_step is not None:
+            self._step_cnt += 1
             self.game.board.mv_empty(next_step)
             self.board.set_state(self.game.board)
-            self.log_panel.add_message(f"Move: {next_step.__repr__()}")
+            self.log_panel.add_message(f"{self._step_cnt:<3} Move: {next_step.__repr__()}")
 
         if self.game.is_win():
             self.log_panel.add_message("<--- DONE! --->")
