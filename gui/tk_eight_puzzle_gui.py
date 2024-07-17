@@ -7,6 +7,29 @@ from gui.tk_eight_puzzle_board import TkGameBoard
 from gui.mock_text import lorem_10ln # TODO TODO TODO remove this later
 
 
+class InteractionLogPanel(ttk.LabelFrame):
+    def __init__(self, parent, label, text_width, text_height, **kwargs):
+        """
+        - `label`: the label of the panel.
+        - `text_width` and `text_height`: the initial width and height of the textarea.
+        """
+        super().__init__(parent, text=label, **kwargs)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        self.text_area = ScrolledText(self, width=text_width, height=text_height, relief="sunken")
+        self.text_area.grid(row=0, column=0, sticky=NSEW)
+        self.text_area.configure(state="disabled")
+
+    def add_message(self, msg: str):
+        """Adds the given message to the log panel."""
+        insert_text(self.text_area, "1.0", f"{msg}\n")
+
+    def clear_log(self):
+        """Removes all messages from the log panel."""
+        remove_text(self.text_area, "1.0", "end")
+
+
 class ButtonsFrame(ttk.Frame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
@@ -47,60 +70,58 @@ class EightPuzzleGui(ttk.Frame):
         btns_frame.append_button("Next Move", self._on_mk_next_mv)
         btns_frame.build()
 
-        #--- game board
+        #--- Game board
         self.game = game
         self.board = TkGameBoard(self, self.game.board)
         self.board.grid(row=1, column=0)
 
-        #--- log frame
-        log_frame = ttk.LabelFrame(self, text="Game Log")
-        log_frame.grid(row=2, column=0, sticky=NSEW)
+        #--- Log panel
+        self.log_panel = InteractionLogPanel(self, "Game Log", 40, 15)
+        self.log_panel.grid(row=2, column=0, sticky=NSEW)
 
-        self.log_text = ScrolledText(log_frame, width=40, height=15, relief="sunken")
-        self.log_text.grid(row=0, column=0, sticky=NSEW)
-        self.log_text.insert("1.0", lorem_10ln) #<---------- TODO remove this
-        self.log_text.configure(state="disabled")
-
-        log_frame.columnconfigure(0, weight=1)
-        log_frame.rowconfigure(0, weight=1)
+        self.log_panel.add_message(lorem_10ln) #<---------- TODO remove this
 
         # configure main frame grid weights
         self.columnconfigure(0, weight=1)
         self.rowconfigure(2, weight=1)
 
     def _on_restart_game(self):
-        print("click: reset game")
         self.restart_game()
+        self.log_panel.add_message("<--- click: restart same game --->")
 
     def restart_game(self):
-        self.clear_log_text()
+        self.log_panel.clear_log()
         self.game.renew_game(self.game.start_board)
         self.board.set_state(self.game.board)
 
     def _on_new_game(self):
-        print("click: new game")
         self.new_random_game()
+        self.log_panel.add_message("<--- click: new game --->")
+        # TODO - solve game already here
+        # TODO - add message, how many steps until solved
 
     def new_random_game(self):
-        self.clear_log_text()
+        self.log_panel.clear_log()
         self.game.renew_game()
         self.board.set_state(self.game.board)
 
-    def clear_log_text(self):
-        remove_text(self.log_text, "1.0", "end")
-
     def _on_mk_next_mv(self):
-        print("click: next move")
-        insert_text(self.log_text, "1.0", "<--- new entry --->\n")
+        self.log_panel.add_message("<--- click: next move --->")
 
-        where_to_move = self.game.next_solution_step()
-        if where_to_move is not None:
-            self.game.board.mv_empty(where_to_move)
+        if not self.game.is_solvable():
+            self.log_panel.add_message("<--- NOT SOLVABLE --->")
+            return
 
-        self.board.set_state(self.game.board)
+        next_step = self.game.next_solution_step()
+        if next_step is not None:
+            self.game.board.mv_empty(next_step)
+            self.board.set_state(self.game.board)
+            # TODO TODO TODO TODO TODO TODO TODO write PERFORMED MOVE to log
 
         if self.game.is_win():
-            print("<--- GAME WON --->")
+            self.log_panel.add_message("<--- GAME WON --->")
+            # TODO TODO TODO TODO TODO TODO TODO TODO TODO disable next step button
+            # TODO TODO TODO TODO TODO TODO TODO TODO TODO enable next step button on new game or reset
             return
 
 
