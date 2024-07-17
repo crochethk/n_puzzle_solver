@@ -7,29 +7,44 @@ from gui.tk_eight_puzzle_board import TkGameBoard
 from gui.mock_text import lorem_10ln # TODO TODO TODO remove this later
 
 
+class ButtonsFrame(ttk.Frame):
+    def __init__(self, parent, **kwargs):
+        super().__init__(parent, **kwargs)
+        self.next_col_num = 0
+
+    def next_column_number(self) -> int:
+        num = self.next_col_num
+        self.next_col_num += 1
+        return num
+
+    def append_button(self, text: str, command, **btn_config):
+        ttk.Button(self, text=text, command=command, **btn_config).grid(
+            row=0,
+            column=self.next_column_number(),
+            sticky=EW,
+        )
+
+    def build(self):
+        #set weight=1 for all columns
+        self.columnconfigure(
+            list(range(len(self.grid_slaves(row=0)))), weight=1)
+        self.rowconfigure(0, weight=1)
+
+
 class EightPuzzleGui(ttk.Frame):
     def __init__(self, parent, game: EightPuzzle, **kwargs):
         super().__init__(parent, **kwargs)
 
         #--- Buttons frame
-        btns_frame = ttk.Frame(
+        btns_frame = ButtonsFrame(
             self,
             padding=(0, 5, 0, 5) # E,N,W,S
         )
         btns_frame.grid(row=0, column=0, sticky=EW)
 
-        # btn_new
-        ttk.Button(btns_frame, text="New",
-                   command=self._on_new_game
-                   ).grid(row=0, column=0, sticky=EW)
-
-        # btn_next_mv
-        ttk.Button(btns_frame, text="Next Move",
-                   command=self._on_mk_next_mv).grid(row=0, column=1, sticky=EW)
-
-        btns_frame.columnconfigure(
-            list(range(len(btns_frame.grid_slaves(row=0)))), weight=1) #set weight=1 for all columns
-        btns_frame.rowconfigure(0, weight=1)
+        btns_frame.append_button("New", self._on_new_game)
+        btns_frame.append_button("Next Move", self._on_mk_next_mv)
+        btns_frame.build()
 
         #--- game board
         self.game = game
