@@ -18,14 +18,16 @@ class TkGameBoard(Canvas):
 
     def __init__(self, parent, from_epb: EightPuzzleBoard | None = None, **kwargs):
         self.field_size = Vec2(80)
-        board_size = (self.field_size * 3) + TkGameBoardField.BORDER_WIDTH
-
-        super().__init__(parent, width=board_size.x, height=board_size.y, background="gray75", **kwargs)
-        remove_border(self)
 
         if from_epb is None:
             # from_state = [[1, 2, 3], [4, None, 6], [7, 8, 9]]
             from_epb = self.__class__.default_epb
+
+        grid_size = len(from_epb.state)
+        board_size = (self.field_size * grid_size) + TkGameBoardField.BORDER_WIDTH
+
+        super().__init__(parent, width=board_size.x, height=board_size.y, background="gray75", **kwargs)
+        remove_border(self)
 
         # Init empty fields
         epb = from_epb
