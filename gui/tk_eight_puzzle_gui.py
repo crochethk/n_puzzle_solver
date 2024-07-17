@@ -29,22 +29,27 @@ class InteractionLogPanel(ttk.LabelFrame):
         remove_text(self.text_area, "1.0", "end")
 
 
-class ButtonsFrame(ttk.Frame):
+class GameControls(ttk.Frame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
         self.next_col_num = 0
+        self.buttons: dict[str, ttk.Button] = dict()
 
     def next_column_number(self) -> int:
         num = self.next_col_num
         self.next_col_num += 1
         return num
 
-    def append_button(self, text: str, command, **btn_config):
-        ttk.Button(self, text=text, command=command, **btn_config).grid(
-            row=0,
-            column=self.next_column_number(),
-            sticky=EW,
-        )
+    def add_button(self, id: str, label: str, command, **btn_config):
+        """
+        Adds a new button. If a button already exists with the `id`, it will be replaced.
+        - `id`: Name which will be used to refer to the new button if needed.
+        - `label`: Text to display on the button.
+        - `command`: Function to execute when button is pressed.
+        """
+        btn = ttk.Button(self, text=label, command=command, **btn_config)
+        btn.grid(row=0, column=self.next_column_number(), sticky=EW)
+        self.buttons[id] = btn
 
     def build(self):
         #set weight=1 for all columns
@@ -58,16 +63,16 @@ class EightPuzzleGui(ttk.Frame):
         super().__init__(parent, **kwargs)
 
         #--- Buttons frame
-        btns_frame = ButtonsFrame(
+        self.controls_panel = GameControls(
             self,
             padding=(0, 5, 0, 5) # E,N,W,S
         )
-        btns_frame.grid(row=0, column=0, sticky=EW)
+        self.controls_panel.grid(row=0, column=0, sticky=EW)
 
-        btns_frame.append_button("New", self._on_new_game)
-        btns_frame.append_button("Restart", self._on_restart_game)
-        btns_frame.append_button("Next Move", self._on_mk_next_mv)
-        btns_frame.build()
+        self.controls_panel.add_button("new", "New", self._on_new_game)
+        self.controls_panel.add_button("restart", "Restart", self._on_restart_game)
+        self.controls_panel.add_button("next_mv", "Next Move", self._on_mk_next_mv)
+        self.controls_panel.build()
 
         #--- Game board
         self.game = game
