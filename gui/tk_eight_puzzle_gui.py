@@ -74,21 +74,12 @@ class EightPuzzleGui(ttk.Frame):
 
     def restart_game(self):
         self.clear_log_text()
-        self.game.renew_game(self.game.board)
+        self.game.renew_game(self.game.start_board)
         self.board.set_state(self.game.board)
 
     def _on_new_game(self):
         print("click: new game")
         self.new_random_game()
-
-        # FIXME FIXME FIXME just for memory leak testing
-        # Memory leak test
-        # # for _ in range(50000):
-        # #     # self.board.del_fields()
-        # #     self.reset_game()
-        # #     insert_text(self.log_text, "1.0", lorem_10ln + "\n")
-        # FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-        pass
 
     def new_random_game(self):
         self.clear_log_text()
@@ -102,13 +93,15 @@ class EightPuzzleGui(ttk.Frame):
         print("click: next move")
         insert_text(self.log_text, "1.0", "<--- new entry --->\n")
 
-        # FIXME FIXME FIXME just for memory leak testing
-        # Memory leak test
-        for i in range(50000):
-            insert_text(self.log_text, "1.0", f"<--- new entry --->{i + 1}\n")
+        where_to_move = self.game.next_solution_step()
+        if where_to_move is not None:
+            self.game.board.mv_empty(where_to_move)
 
-        # FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-        pass
+        self.board.set_state(self.game.board)
+
+        if self.game.is_win():
+            print("<--- GAME WON --->")
+            return
 
 
 def remove_text(text_w: Text, start_idx: str, end_idx: str):

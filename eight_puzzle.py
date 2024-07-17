@@ -29,7 +29,7 @@ class EightPuzzleBoard:
         """
         self.state = state
         # validate state has an empty field
-        _ = self.get_empty_field()
+        _ = self.empty_field_pos()
 
     def __repr__(self) -> str:
         s = ""
@@ -45,7 +45,7 @@ class EightPuzzleBoard:
     def __eq__(self, other: 'EightPuzzleBoard') -> bool:
         return self.state == other.state
 
-    def get_empty_field(self) -> Vec2:
+    def empty_field_pos(self) -> Vec2:
         """
         Returns the position of the empty field.
         """
@@ -63,7 +63,7 @@ class EightPuzzleBoard:
         - `new_board` is a board instance representing a possible next state.
         """
         boards: list[tuple[list[MoveDirection], EightPuzzleBoard]] = []
-        empty_pos = self.get_empty_field()
+        empty_pos = self.empty_field_pos()
 
         for mv_dir in MoveDirection:
             target_pos = empty_pos + mv_dir.value
@@ -101,6 +101,16 @@ class EightPuzzleBoard:
                 continue
         return None
 
+    def mv_empty(self, mv_dir: MoveDirection):
+        """
+        Moves empty field in `mv_dir`. If it's not a valid move, it is silently 
+        ignored.
+        """
+        empty_pos = self.empty_field_pos()
+        target_pos = empty_pos + mv_dir.value
+        if self.contains_pos(target_pos):
+            self.swap_fields(empty_pos, target_pos)
+
     @staticmethod
     def random_board(seed=None) -> 'EightPuzzleBoard':
         random.seed(seed)
@@ -119,6 +129,8 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
         self.board = initial_board
         self.goal_board = goal_board
         self.search_strategy = search_strategy
+        self.solution = None
+        self.start_board = initial_board.clone()
 
     def __str__(self) -> str:
         """
@@ -136,11 +148,10 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
 
     def solve(self, exhaustive_search=True) -> list | None:
         """
-        Returns a list of solution steps beginning with the first, ending with 
-        the last step. They represent the sequence of moves the empty field must
-        perform in order to achieve the goal state.
+        Returns a list of solution steps and stores it in `self.solution`. 
+        The list starts with the first and ends with the last step/move the empty 
+        field must perform in order to achieve the goal state.
         """
-
         strategy = self.search_strategy
 
         strategy.apply([([], self.board)])
@@ -179,14 +190,26 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
             self.search_strategy.apply(candidates)
 
         print(f"Expansions to finish: {counter}")
+        self.solution = best_history
         return best_history
+
+    def is_win(self) -> bool:
+        return self.board == self.goal_board
 
     def renew_game(self, new_start: EightPuzzleBoard = None, new_goal: EightPuzzleBoard = None):
         """
-        Resets this puzzle intance and its solver. If `new_start` board is not provided
-        a randomized will be set. if `new_goal` is not provided the current `goal_board`
-        is preserved.
+        Resets this puzzle intance and its solver.
+        - If `new_start` board is not provided a randomized will be set, otherwise `new_start`
+            will used.
+        - If `new_goal` is not provided the current `goal_board` is preserved.
         """
+        self.solution = None
         self.board = EightPuzzleBoard.random_board() if new_start is None else new_start
+        self.start_board = self.board.clone()
         self.search_strategy.reset()
         self.goal_board = self.goal_board if new_goal is None else new_goal
+
+    def next_solution_step(self):
+        if self.solution is None:
+            self.solve(exhaustive_search=False)
+        return self.solution.pop(0) if len(self.solution) > 0 else None

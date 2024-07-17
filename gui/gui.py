@@ -9,7 +9,8 @@ from vec2 import Vec2
 
 SEED = 42
 # SEED = None
-THE_INITIAL_BOARD = EightPuzzleBoard.random_board(SEED)
+# THE_INITIAL_BOARD = EightPuzzleBoard.random_board(SEED)
+THE_INITIAL_BOARD = EightPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
 THE_GOAL_BOARD = EightPuzzleBoard([[1, 2, 3], [8, None, 4], [7, 6, 5]])
 THE_STRATEGY = AStarSearch(THE_GOAL_BOARD, ep_heurs.cumulative_distance)
 
