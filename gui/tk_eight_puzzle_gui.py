@@ -57,6 +57,18 @@ class GameControls(ttk.Frame):
             list(range(len(self.grid_slaves(row=0)))), weight=1)
         self.rowconfigure(0, weight=1)
 
+    def disable_btn(self, id: str):
+        """Disables button with id `id`. Does nothing if `id` is unknown."""
+        btn = self.buttons.get(id)
+        if btn:
+            btn.configure(state="disabled")
+
+    def enable_btn(self, id: str):
+        """Enables button with id `id`. Does nothing if `id` is unknown."""
+        btn = self.buttons.get(id)
+        if btn:
+            btn.configure(state="normal")
+
 
 class EightPuzzleGui(ttk.Frame):
     def __init__(self, parent, game: EightPuzzle, **kwargs):
@@ -71,7 +83,7 @@ class EightPuzzleGui(ttk.Frame):
 
         self.controls_panel.add_button("new", "New", self._on_new_game)
         self.controls_panel.add_button("restart", "Restart", self._on_restart_game)
-        self.controls_panel.add_button("next_mv", "Next Move", self._on_mk_next_mv)
+        self.controls_panel.add_button("next", "Next Move", self._on_mk_next_mv)
         self.controls_panel.build()
 
         #--- Game board
@@ -89,18 +101,28 @@ class EightPuzzleGui(ttk.Frame):
 
     def _on_restart_game(self):
         self.restart_game()
-        self.log_panel.add_message("<--- click: restart same game --->")
+        self.log_panel.add_message("<--- Game restarted --->")
+        self.prepare_game()
+
+    def _on_new_game(self):
+        self.new_random_game()
+        self.log_panel.add_message("<--- New game started --->")
+        self.prepare_game()
+
+    def prepare_game(self):
+        """Prepares game for user interaction."""
+        self.controls_panel.disable_btn("next")
+        if self.game.is_solvable():
+            hist = self.game.solve(exhaustive_search=False)
+            self.log_panel.add_message(f"{len(hist)} steps until solved.")
+            self.controls_panel.enable_btn("next")
+        else:
+            self.log_panel.add_message(f"Unsolvable configuration. Try another!")
 
     def restart_game(self):
         self.log_panel.clear_log()
         self.game.renew_game(self.game.start_board)
         self.board.set_state(self.game.board)
-
-    def _on_new_game(self):
-        self.new_random_game()
-        self.log_panel.add_message("<--- click: new game --->")
-        # TODO - solve game already here
-        # TODO - add message, how many steps until solved
 
     def new_random_game(self):
         self.log_panel.clear_log()
@@ -108,23 +130,15 @@ class EightPuzzleGui(ttk.Frame):
         self.board.set_state(self.game.board)
 
     def _on_mk_next_mv(self):
-        self.log_panel.add_message("<--- click: next move --->")
-
-        if not self.game.is_solvable():
-            self.log_panel.add_message("<--- NOT SOLVABLE --->")
-            return
-
         next_step = self.game.next_solution_step()
         if next_step is not None:
             self.game.board.mv_empty(next_step)
             self.board.set_state(self.game.board)
-            # TODO TODO TODO TODO TODO TODO TODO write PERFORMED MOVE to log
+            self.log_panel.add_message(f"Move: {next_step.__repr__()}")
 
         if self.game.is_win():
-            self.log_panel.add_message("<--- GAME WON --->")
-            # TODO TODO TODO TODO TODO TODO TODO TODO TODO disable next step button
-            # TODO TODO TODO TODO TODO TODO TODO TODO TODO enable next step button on new game or reset
-            return
+            self.log_panel.add_message("<--- DONE! --->")
+            self.controls_panel.disable_btn("next")
 
 
 def remove_text(text_w: Text, start_idx: str, end_idx: str):

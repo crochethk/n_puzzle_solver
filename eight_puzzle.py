@@ -281,5 +281,7 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
 
     def next_solution_step(self):
         if self.solution is None:
-            self.solve(exhaustive_search=False)
+            raise AssertionError(
+                "`solve()` method must be run at least once before querying next step"
+            )
         return self.solution.pop(0) if len(self.solution) > 0 else None
