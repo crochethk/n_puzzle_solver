@@ -116,6 +116,14 @@ class EightPuzzleBoard:
             self.swap_fields(empty_pos, target_pos)
 
     @staticmethod
+    def step_distance(pos1: Vec2, pos2: Vec2):
+        """
+        Returns distance as the sum of gridsteps required from `pos1` to `pos2`.
+        """
+        direction = pos2 - pos1
+        return abs(direction.x) + abs(direction.y)
+
+    @staticmethod
     def random_board(seed=None) -> 'EightPuzzleBoard':
         random.seed(seed)
         pieces = [1, 2, 3, 4, 5, 6, 7, 8, None]
@@ -152,10 +160,17 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
 
     def solve(self, exhaustive_search=True) -> list | None:
         """
-        Returns a list of solution steps and stores it in `self.solution`. 
+        Returns a list of solution steps and stores it in `self.solution`.
         The list starts with the first and ends with the last step/move the empty 
         field must perform in order to achieve the goal state.
+        Returns/stores `None`, in case the puzzle is not solvable, i.e. start 
+        configuration can't be transformed into goal configuration.
         """
+
+        if not self.is_solvable():
+            self.solution = None
+            return None
+
         strategy = self.search_strategy
 
         strategy.apply([([], self.board)])
@@ -181,6 +196,9 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
                 best_history = history
                 if exhaustive_search:
                     continue
+                elif len(best_history) == 0:
+                    # start state is goal_state, cant get better than that
+                    break
                 else:
                     break
 
@@ -199,6 +217,54 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
 
     def is_win(self) -> bool:
         return self.board == self.goal_board
+
+    def is_solvable(self) -> bool:
+        """
+        Checks whether the current game is solvable, i.e. if current `board` state
+        can be tranformed into the `goal_board`.
+        1) Determine parity of goal_board from steps count, the empty field 
+            has to perform to reach its target
+        2) Determine parity of transformation steps of `start` into `goal` using 
+            transpositions (i.e. swapping) only
+        3) Parities must match in order for the configuration to be solvable.
+        """
+
+        # Determine "goal parity"
+        empty_start_pos = self.board.empty_field_pos()
+        empty_goal_pos = self.goal_board.empty_field_pos()
+        # ODD => 1, EVEN => 0
+        parity_goal = self.board.step_distance(empty_start_pos, empty_goal_pos) % 2
+
+        # Determine "start board parity"
+        def flatten(arr): return [val for row in arr for val in row]
+        start = flatten(self.board.state)
+        goal = flatten(self.goal_board.state)
+
+        swaps_count = 0
+        for goal_i, v in enumerate(goal):
+            # Example: goal_i=2
+            #  goal: [1, 2, 3, 4, 5, 6, 7, 8, 0]
+            #        .......^
+            # start: [1, 2, 7, 5, 0, 4, 6, 8, 3]
+            #               ^←             ← ^^^(start_i=8)
+            # -> swap start[2] and start[8]
+            try:
+                start_i = start.index(v)
+            except ValueError:
+                # start/goal with missing value is not solvable for
+                return False
+
+            if goal_i != start_i:
+                # swap elements
+                swaps_count += 1
+                tmp = start[goal_i]
+                start[goal_i] = start[start_i]
+                start[start_i] = tmp
+            else:
+                # already on correct pos
+                continue
+        parity_current = swaps_count % 2
+        return parity_goal == parity_current
 
     def renew_game(self, new_start: EightPuzzleBoard = None, new_goal: EightPuzzleBoard = None):
         """

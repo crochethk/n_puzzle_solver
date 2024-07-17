@@ -22,8 +22,7 @@ def cumulative_distance(current: 'EightPuzzleBoard', goal: 'EightPuzzleBoard'):
                 # ignore silently if `val` wasnt found...
                 continue
             else:
-                dist = goal_pos - Vec2(row_i, col_i)
-                h += abs(dist.x) + abs(dist.y)
+                h += current.step_distance(Vec2(row_i, col_i), goal_pos)
     return h
 
 

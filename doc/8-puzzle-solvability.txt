@@ -1,0 +1,112 @@
+Solvable example:
+[2 8 3]        Goal: [1 2 3]                                                                                          
+[1 6 4]              [8   4]                                                                                      
+[7   5]              [7 6 5]                                                                                     
+
+# Required parity:
+Basically: 
+> "Is the number of moves the empty spot requires to get to its destination EVEB or ODD?"
+→ swap empty with 6 → **ODD**
+
+## Explanation:
+To get to the target permutation, the empty spot will move all around the board.
+The number of moves it does can then be either even or odd. No matter how many 
+times the empty spot has to move, it always will need an odd number of 
+transpositions, because of the way how transpositions and permutations work
+(also it's easy to admit, when you think about it).
+
+# Start configuration parity
+Get to Goal using (constrained) transpositions/swaps: 
+(each "graphic" is ONE transposition step, i.e. swaps of adjacent elements)
+
+[1 8 3]                                                
+[2 6 4]                                                
+[7   5]                                                
+                                                       
+        [1 8 3]   [1 2 3]                              
+        [6 2 4]   [6 8 4]                              
+        [7   5]   [7   5]                              
+                                                       
+                        [1 2 3]   [1 2 3]              
+                        [7 8 4]   [7 8 4]              
+                        [6   5]   [  6 5]              
+                                                       
+                                        [1 2 3]        
+                                        [  8 4]        
+                                        [7 6 5]        
+                                                       
+                                                [1 2 3]
+                                                [8   4]
+                                                [7 6 5]
+TOTAL TRANSPOSITION STEPS: 7
+PARITY: odd
+→ P_req == P_is => solvable
+
+
+
+-----------------------------------------------------------------------------
+
+Solvable example:
+[2 8 3]        Goal: [1 2 3]                                                                                          
+[1 6 4]              [8   4]                                                                                      
+[7   5]              [7 6 5]                                                                                     
+
+Required parity: ODD 
+
+Get to Goal using (unconstrained/direct) transpositions: 
+
+[1 8 3]                                                
+[2 6 4]                                                
+[7   5]                                                
+                                                       
+[1 2 3]                                                
+[8 6 4]                                                
+[7   5]                                                
+                                                       
+[1 2 3]                                                
+[8   4]                                                
+[7 6 5]                                                
+                                                       
+
+TOTAL TRANSPOSITION STEPS: 3
+
+
+-----------------------------------------------------------------------------
+
+
+Unsolvable example:
+[4 7 8]        Goal: [1 2 3]                                                                                          
+[5   3]              [8   4]                                                                                      
+[6 1 2]              [7 6 5]
+
+Required parity: EVEN 
+(empty spot needs even number of moves to get to goal position)
+
+Goal: [1 2 3]
+      [8   4]
+      [7 6 5]
+                                                                                                    
+Transposition Pseudo solution (calculating parity): 
+(each "graphic" is ONE transposition step, i.e. swaps of adjacent elements)
+
+[7 4 8]   [7 8 4]   [7 8 3]                                          
+[5   3]   [5   3]   [5   4]                                          
+[6 1 2]   [6 1 2]   [6 1 2]                                          
+                                                    
+[7 8 3]   [7 8 3]   [1 8 3]                                              
+[5   4]   [1   4]   [7   4]                                              
+[1 6 2]   [5 6 2]   [5 6 2]                                              
+                                                    
+[1 8 3]   [1 8 3]                                                 
+[7   4]   [7   4]                                                 
+[6 5 2]   [6 2 5]                                                 
+                                                    
+[1 8 3]   [1 8 3]   [1 8 3]   [1 2 3]                                           
+[7   4]   [2   4]   [  2 4]   [  8 4]                                           
+[2 6 5]   [7 6 5]   [7 6 5]   [7 6 5]                                           
+                                                    
+[1 2 3]                                                    
+[8   4]                                                    
+[7 6 5]                                                    
+
+TOTAL TRANSPOSITION STEPS: 13
