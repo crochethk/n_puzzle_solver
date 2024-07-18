@@ -91,7 +91,7 @@ class EightPuzzleGui(ttk.Frame):
             self,
             padding=(0, 5, 0, 5) # E,N,W,S
         )
-        self.controls_panel.grid(row=0, column=0, sticky=EW)
+        self.controls_panel.grid(row=0, column=0, columnspan=999, sticky=NSEW)
 
         self.controls_panel.add_button("new", "New", self._on_new_game)
         self.controls_panel.add_button("restart", "Restart", self._on_restart_game)
@@ -100,19 +100,20 @@ class EightPuzzleGui(ttk.Frame):
 
         #--- Game board
         self.game = game
-        self.board = TkGameBoard(self, self.game.board)
-        self.board.grid(row=1, column=0)
 
-        goalb = TkGameBoard(self, self.game.goal_board)
-        goalb.grid(row=1, column=1)
+        self.board = TkGameBoard(self, self.game.board)
+        self.board.grid(row=10, column=0, sticky=E, padx=2)
+
+        self.goal_b = TkGameBoard(self, self.game.goal_board)
+        self.goal_b.grid(row=10, column=1, sticky=W, padx=2)
 
         #--- Log panel
-        self.log_panel = InteractionLogPanel(self, "Game Log", 40, 15)
-        self.log_panel.grid(row=2, column=0, columnspan=999, sticky=NSEW) # dirty: span all cols
+        self.log_panel = InteractionLogPanel(self, "Game Log", 10, 15)
+        self.log_panel.grid(row=30, column=0, columnspan=999, sticky=NSEW) # dirty: span all cols
 
         # configure main frame grid weights
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(2, weight=1)
+        self.columnconfigure((0, 1), weight=1)
+        self.rowconfigure(30, weight=1)
 
         self.prepare_game()
 
