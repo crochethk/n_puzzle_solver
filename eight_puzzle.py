@@ -158,7 +158,7 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
     def is_goal_board(self, board: EightPuzzleBoard):
         return self.goal_board == board
 
-    def solve(self, exhaustive_search=True) -> list | None:
+    def solve(self, exhaustive_search=False) -> list | None:
         """
         Returns a list of solution steps and stores it in `self.solution`.
         The list starts with the first and ends with the last step/move the empty 

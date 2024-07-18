@@ -1,8 +1,9 @@
+import threading
 from tkinter import *
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
-from eight_puzzle import EightPuzzle
+from eight_puzzle import EightPuzzle, MoveDirection
 from gui.tk_eight_puzzle_board import TkGameBoard
 
 
@@ -69,6 +70,14 @@ class GameControls(ttk.Frame):
         if btn:
             btn.configure(state="normal")
 
+    def enable_all(self):
+        for btn_id in self.buttons.keys():
+            self.enable_btn(btn_id)
+
+    def disable_all(self):
+        for btn_id in self.buttons.keys():
+            self.disable_btn(btn_id)
+
 
 class EightPuzzleGui(ttk.Frame):
     def __init__(self, parent, game: EightPuzzle, **kwargs):
@@ -121,12 +130,22 @@ class EightPuzzleGui(ttk.Frame):
         """Prepares the game for user interaction."""
         self._step_cnt = 0
         self.controls_panel.disable_btn("next")
+        self.controls_panel.disable_btn("restart")
+        self.controls_panel.disable_btn("new")
         if self.game.is_solvable():
-            hist = self.game.solve(exhaustive_search=False)
-            self.log_panel.add_message(f"{len(hist)} steps until solved.")
-            self.controls_panel.enable_btn("next")
+            threading.Thread(target=self.solve_puzzle_in_thread, daemon=True).start()
         else:
             self.log_panel.add_message(f"Unsolvable configuration. Try another!")
+            self.controls_panel.enable_btn("new")
+
+    def solve_puzzle_in_thread(self):
+        print(f"{threading.currentThread().getName()}")
+        solution = self.game.solve(exhaustive_search=False)
+        self.after(5, self.update_ui_with_solution, solution)
+
+    def update_ui_with_solution(self, solution: list[MoveDirection]):
+        self.log_panel.add_message(f"{len(solution)} steps until solved.")
+        self.controls_panel.enable_all()
 
     def restart_game(self):
         self.log_panel.clear_log()
