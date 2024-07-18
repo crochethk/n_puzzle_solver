@@ -1,4 +1,10 @@
-from eight_puzzle import *  # EightPuzzleBoard, EightPuzzle
+"""
+This is an example, that mainly utilizes the code in `eight_puzzle` for defining
+and solving a predefined puzzle, based on the assignment, this code was originally
+written for.
+"""
+
+from eight_puzzle import EightPuzzleBoard, EightPuzzle
 import eight_puzzle_heuristics as ep_heurs
 from search_strategy import BreadthFirstSearch, DepthFirstSearch, AStarSearch
 
@@ -70,7 +76,7 @@ def assignment_example_solution():
 
 
 def main():
-    #assignment_example_solution()
+    assignment_example_solution()
 
     # ==========================================================================
 
@@ -85,7 +91,7 @@ def main():
                          AStarSearch(goal_state, ep_heurs.cumulative_distance))
     print(puzzle)
 
-    # print("--- Exhaustive search ---")
+    print("--- Exhaustive search ---")
     print(puzzle.solve())
     # >>> None
 
