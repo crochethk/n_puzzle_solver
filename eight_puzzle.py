@@ -155,9 +155,6 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
         s += str(self.goal_board)
         return s
 
-    def is_goal_board(self, board: EightPuzzleBoard):
-        return self.goal_board == board
-
     def solve(self, exhaustive_search=False) -> list | None:
         """
         Returns a list of solution steps and stores it in `self.solution`.
@@ -191,7 +188,7 @@ class EightPuzzle: # TODO could or should be split up into "EightPuzzleSolver" a
                 strategy.path_cost(history)
             )
 
-            if self.is_goal_board(state) \
+            if self.goal_board == state \
                     and (best_history is None or best_cost > curr_cost):
                 best_history = history
                 if exhaustive_search:
