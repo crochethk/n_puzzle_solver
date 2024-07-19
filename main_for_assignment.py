@@ -5,7 +5,7 @@ written for.
 """
 
 from eight_puzzle import EightPuzzleBoard, EightPuzzle
-import eight_puzzle_heuristics as ep_heurs
+import n_puzzle_heuristics as ep_heurs
 from search_strategy import BreadthFirstSearch, DepthFirstSearch, AStarSearch
 
 
