@@ -93,9 +93,9 @@ class EightPuzzleGui(ttk.Frame):
         )
         self.controls_panel.grid(row=0, column=0, columnspan=999, sticky=NSEW)
 
-        self.controls_panel.add_button("new", "New", self._on_new_game)
         self.controls_panel.add_button("restart", "Restart", self._on_restart_game)
         self.controls_panel.add_button("next", "Next Move", self._on_mk_next_mv)
+        self.controls_panel.add_button("new", "New", self._on_new_game)
         self.controls_panel.build()
 
         #--- Game board
@@ -109,12 +109,17 @@ class EightPuzzleGui(ttk.Frame):
 
         #--- Log panel
         self.log_panel = InteractionLogPanel(self, "Game Log", 10, 15)
-        self.log_panel.grid(row=30, column=0, columnspan=999, sticky=NSEW) # dirty: span all cols
+        self.log_panel.grid(row=20, column=0, columnspan=999, sticky=NSEW) # dirty: span all cols
+        self.rowconfigure(20, weight=1)
 
-        # configure main frame grid weights
+        #--- Progress bar
+        self.prog_bar = ttk.Progressbar(self, mode="indeterminate")
+        self.prog_bar.grid(row=30, column=0, columnspan=999, sticky=NSEW)
+        self.rowconfigure(30, minsize=25)
+
         self.columnconfigure((0, 1), weight=1)
-        self.rowconfigure(30, weight=1)
 
+        self.log_panel.add_message("<--- Start --->")
         self.prepare_game()
 
     def _on_restart_game(self):
@@ -134,15 +139,26 @@ class EightPuzzleGui(ttk.Frame):
         self.controls_panel.disable_btn("restart")
         self.controls_panel.disable_btn("new")
         if self.game.is_solvable():
+            self.log_panel.add_message("Solving puzzle. This may take some time...")
+            self.start_progress_bar()
             threading.Thread(target=self.solve_puzzle_in_thread, daemon=True).start()
         else:
             self.log_panel.add_message(f"Unsolvable configuration. Try another!")
             self.controls_panel.enable_btn("new")
 
+    def start_progress_bar(self):
+        self.prog_bar.start(25) # determines move speed
+        self.prog_bar.grid_configure()
+
+    def stop_progress_bar(self):
+        self.prog_bar.stop()
+        self.prog_bar.grid_remove()
+
     def solve_puzzle_in_thread(self):
         print(f"{threading.currentThread().getName()}")
-        solution = self.game.solve(exhaustive_search=False)
-        self.after(5, self.update_ui_with_solution, solution)
+        solution = self.game.solve(exhaustive_search=True) # FIXME `True` for trying out progressbar
+        self.after(0, self.update_ui_with_solution, solution)
+        self.after(0, self.stop_progress_bar)
 
     def update_ui_with_solution(self, solution: list[MoveDirection]):
         self.log_panel.add_message(f"{len(solution)} steps until solved.")
