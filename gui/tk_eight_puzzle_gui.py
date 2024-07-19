@@ -96,6 +96,7 @@ class EightPuzzleGui(ttk.Frame):
         self.controls_panel.add_button("restart", "Restart", self._on_restart_game)
         self.controls_panel.add_button("next", "Next Move", self._on_mk_next_mv)
         self.controls_panel.add_button("new", "New", self._on_new_game)
+        self.controls_panel.add_button("cancel_solve", "Cancel", self._on_cancel_solve)
         self.controls_panel.build()
 
         #--- Game board
@@ -185,6 +186,19 @@ class EightPuzzleGui(ttk.Frame):
         if self.game.is_win():
             self.log_panel.add_message("<--- DONE! --->")
             self.controls_panel.disable_btn("next")
+
+    def _on_cancel_solve(self):
+        # TODO Must implement "solver thread" in the actual game first
+        # TODO since we need a way to send and check events to the worker thread
+        # TODO as of now we have no control about, what the solver is doing from
+        # TODO inside the ui
+        # TODO
+        # TODO Outline to achive this:
+        # TODO      - it shall get an additional lambda argument upon creation,
+        # TODO          that returns a bool from main thread
+        # TODO      - add check whehter the lambda returns True (stop)
+        # TODO      - gui can then "set" the according bool, to signal worker to stop
+        pass
 
 
 def remove_text(text_w: Text, start_idx: str, end_idx: str):
