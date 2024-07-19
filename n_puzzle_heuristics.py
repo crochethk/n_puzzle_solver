@@ -1,8 +1,8 @@
-from eight_puzzle import EightPuzzleBoard
+from n_puzzle import NPuzzleBoard
 from vec2 import Vec2
 
 
-def cumulative_distance(current: 'EightPuzzleBoard', goal: 'EightPuzzleBoard'):
+def cumulative_distance(current: 'NPuzzleBoard', goal: 'NPuzzleBoard'):
     """
     Sums step each puzzle piece would need to perform to reach its goal destination,
     assuming an empty board.
@@ -26,7 +26,7 @@ def cumulative_distance(current: 'EightPuzzleBoard', goal: 'EightPuzzleBoard'):
     return h
 
 
-def count_correct_positions(current: 'EightPuzzleBoard', goal: 'EightPuzzleBoard'):
+def count_correct_positions(current: 'NPuzzleBoard', goal: 'NPuzzleBoard'):
     counter = 0
     for row1, row2 in zip(current.state, goal.state):
         for val1, val2 in zip(row1, row2):
