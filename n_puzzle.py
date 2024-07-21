@@ -127,25 +127,33 @@ class NPuzzleBoard:
         return abs(direction.x) + abs(direction.y)
 
     @staticmethod
-    def random_board(seed=None, n_pieces: int = 8) -> 'NPuzzleBoard':
+    def random_board(rng: random.Random | None = None, n_pieces: int = 8) -> 'NPuzzleBoard':
         """
         Creates a new board with randomized fields.
+        - `rng`: the random number generator to use. Defaults to `random` module's rng on `None`.
         - `n_pieces`: specifies the number of "pieces" on the board, e.g. `8` for an 8-Puzzle-Board
         """
-        random.seed(seed)
+        rng = random if rng is None else rng
+
         pieces = list(range(1, n_pieces + 1))
         pieces.append(None)
-        random.shuffle(pieces)
+        rng.shuffle(pieces)
         size = int(sqrt(n_pieces + 1))
         pieces = [pieces[i:i + size] for i in range(0, n_pieces + 1, size)]
         return NPuzzleBoard(pieces)
 
 
 class NPuzzleGame:
-    def __init__(self, start_board: NPuzzleBoard, goal_board: NPuzzleBoard):
+    def __init__(self, start_board: NPuzzleBoard, goal_board: NPuzzleBoard,
+                 seed: int | float | str | bytes | bytearray | None = None):
+        """
+        - `seed`: A seed the internal random number generator should be initialized with.
+            It will be used e.g. to generate random boards.
+        """
         self.board = start_board
         self.goal_board = goal_board
         self.start_board = start_board.clone()
+        self.rng = random.Random(seed)
 
     def __str__(self) -> str:
         """
@@ -171,6 +179,6 @@ class NPuzzleGame:
             will be used.
         - If `new_goal` is not provided the current `goal_board` is preserved.
         """
-        self.board = NPuzzleBoard.random_board(n_pieces=self.board.N) if new_start is None else new_start
+        self.board = NPuzzleBoard.random_board(n_pieces=self.board.N, rng=self.rng) if new_start is None else new_start
         self.start_board = self.board.clone()
         self.goal_board = self.goal_board if new_goal is None else new_goal

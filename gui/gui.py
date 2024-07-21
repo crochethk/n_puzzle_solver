@@ -3,11 +3,14 @@ from tkinter import *
 import n_puzzle_heuristics as heuristics
 from gui.tk_n_puzzle_gui import NPuzzleGUI
 from n_puzzle import NPuzzleGame, NPuzzleBoard
+from n_puzzle_solver import NPuzzleSolver
 from search_strategy import AStarSearch
 from vec2 import Vec2
 
 from n_puzzle_solver import NPuzzleSolver
 
+# Set this to None, to get different sequences of boards every execution
+THE_SEED = 42
 
 # # Example: solvable 4x4 init configuration
 # THE_INITIAL_BOARD = NPuzzleBoard([ # only 2 and None swapped
@@ -32,7 +35,7 @@ if __name__ == "__main__":
     root.bind("<F5>", lambda ev: root.quit()) # added for convenience
     root.geometry("+" + str(WINDOW_POS.x) + "+" + str(WINDOW_POS.y))
 
-    game = NPuzzleGame(THE_INITIAL_BOARD, THE_GOAL_BOARD)
+    game = NPuzzleGame(THE_INITIAL_BOARD, THE_GOAL_BOARD, THE_SEED)
     solver = NPuzzleSolver(game, THE_STRATEGY)
 
     game_gui = NPuzzleGUI(root, game, solver, padding="3 3 3 3")
