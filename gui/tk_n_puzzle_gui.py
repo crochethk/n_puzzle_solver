@@ -3,8 +3,9 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
-from eight_puzzle import EightPuzzle, MoveDirection
-from gui.tk_eight_puzzle_board import TkGameBoard
+from n_puzzle import NPuzzleGame, MoveDirection
+from gui.tk_n_puzzle_board import TkGameBoard
+from n_puzzle_solver import NPuzzleSolver
 
 
 class InteractionLogPanel(ttk.LabelFrame):
@@ -79,8 +80,8 @@ class GameControls(ttk.Frame):
             self.disable_btn(btn_id)
 
 
-class EightPuzzleGui(ttk.Frame):
-    def __init__(self, parent, game: EightPuzzle, **kwargs):
+class NPuzzleGUI(ttk.Frame):
+    def __init__(self, parent, game: NPuzzleGame, solver: NPuzzleSolver, **kwargs):
         super().__init__(parent, **kwargs)
 
         # counter for steps performed so far
@@ -101,6 +102,7 @@ class EightPuzzleGui(ttk.Frame):
 
         #--- Game board
         self.game = game
+        self.solver = solver
 
         self.board = TkGameBoard(self, self.game.board)
         self.board.grid(row=10, column=0, sticky=E, padx=2)
@@ -139,7 +141,7 @@ class EightPuzzleGui(ttk.Frame):
         self.controls_panel.disable_btn("next")
         self.controls_panel.disable_btn("restart")
         self.controls_panel.disable_btn("new")
-        if self.game.is_solvable():
+        if NPuzzleSolver.is_solvable(self.game):
             self.log_panel.add_message("Solving puzzle. This may take some time...")
             self.start_progress_bar()
             threading.Thread(target=self.solve_puzzle_in_thread, daemon=True).start()
@@ -157,7 +159,7 @@ class EightPuzzleGui(ttk.Frame):
 
     def solve_puzzle_in_thread(self):
         print(f"{threading.currentThread().getName()}")
-        solution = self.game.solve(exhaustive_search=True) # FIXME `True` for trying out progressbar
+        solution = self.solver.solve(exhaustive_search=False) # FIXME `True` for trying out progressbar
         self.after(0, self.update_ui_with_solution, solution)
         self.after(0, self.stop_progress_bar)
 
@@ -167,16 +169,18 @@ class EightPuzzleGui(ttk.Frame):
 
     def restart_game(self):
         self.log_panel.clear_log()
-        self.game.renew_game(self.game.start_board)
+        self.game.renew(self.game.start_board)
+        self.solver.reset()
         self.board.set_state(self.game.board)
 
     def new_random_game(self):
         self.log_panel.clear_log()
-        self.game.renew_game()
+        self.game.renew()
+        self.solver.reset()
         self.board.set_state(self.game.board)
 
     def _on_mk_next_mv(self):
-        next_step = self.game.next_solution_step()
+        next_step = self.solver.next_solution_step()
         if next_step is not None:
             self._step_cnt += 1
             self.game.board.mv_empty(next_step)

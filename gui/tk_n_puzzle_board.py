@@ -1,6 +1,6 @@
 from tkinter import *
 
-from eight_puzzle import EightPuzzleBoard
+from n_puzzle import NPuzzleBoard
 from gui.item_highlighter import ItemHighlighter
 from vec2 import Vec2
 
@@ -14,9 +14,9 @@ FIELD_HL_CLR = "green"
 
 
 class TkGameBoard(Canvas):
-    default_epb = EightPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
+    default_epb = NPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
 
-    def __init__(self, parent, from_epb: EightPuzzleBoard | None = None, **kwargs):
+    def __init__(self, parent, from_epb: NPuzzleBoard | None = None, **kwargs):
         self.field_size = Vec2(80)
 
         if from_epb is None:
@@ -52,16 +52,16 @@ class TkGameBoard(Canvas):
     def set_default_state(self):
         self.set_state(self.__class__.default_epb)
 
-    def set_state(self, epb: EightPuzzleBoard):
+    def set_state(self, board: NPuzzleBoard):
         """
         Reconfigures this canvas's items to match state represented by `epb`.
         """
-        cols = len(epb.state[0])
-        rows = len(epb.state)
+        cols = len(board.state[0])
+        rows = len(board.state)
 
         for c in range(cols):
             for r in range(rows):
-                field_val = epb.state[r][c]
+                field_val = board.state[r][c]
                 f = self.fields[c][r]
                 f.set_value(field_val)
 
