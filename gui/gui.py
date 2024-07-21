@@ -8,11 +8,14 @@ from vec2 import Vec2
 
 from n_puzzle_solver import NPuzzleSolver
 
-# TODO
-# SEED = 42
-# SEED = None
 
-# THE_INITIAL_BOARD = NPuzzleBoard.random_board(SEED)
+# # Example: solvable 4x4 init configuration
+# THE_INITIAL_BOARD = NPuzzleBoard([ # only 2 and None swapped
+#     [1, None, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 2]])
+# THE_GOAL_BOARD = NPuzzleBoard([
+#     [1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, None]])
+# #------------------------------
+
 THE_INITIAL_BOARD = NPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
 THE_GOAL_BOARD = NPuzzleBoard([[1, 2, 3], [8, None, 4], [7, 6, 5]])
 THE_STRATEGY = AStarSearch(THE_GOAL_BOARD, heuristics.cumulative_distance)

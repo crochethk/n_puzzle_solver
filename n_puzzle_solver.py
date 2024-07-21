@@ -1,3 +1,10 @@
+"""
+Solver for a "N Puzzle Game". Although it finds a solution, if there is any,
+it can take rather long (>30min) when used with puzzles greater than 3x3.
+One reason beeing, that a 4x4 board ("15 Puzzle") has `16!/9! = 57.657.600` times (!)
+the amount of permutations a 3x3 board has.
+"""
+
 from n_puzzle import NPuzzleBoard, NPuzzleGame, MoveDirection
 from search_strategy import SearchStrategyBase
 
