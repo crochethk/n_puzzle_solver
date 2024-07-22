@@ -1,19 +1,3 @@
-# # TODO Marked for removal
-# # class Rect:
-# #     def __init__(self, x0, y0, x1, y1):
-# #         self.p1 = Vec2(x0, y0)
-# #         self.p2 = Vec2(x1, y1)
-
-# #     def __repr__(self) -> str:
-# #         return f"Rect({self.p1}, {self.p2})"
-
-# #     def contains(self, point: 'Vec2') -> bool:
-# #         return (self.p1.x <= point.x
-# #                 and self.p1.y <= point.y
-# #                 and self.p2.x > point.x
-# #                 and self.p2.y > point.y)
-
-
 class Vec2:
     def __init__(self, *args):
         """
