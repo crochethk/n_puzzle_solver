@@ -58,18 +58,18 @@ def assignment_example_solution():
     # >>> Expansions to finish: 6
     # >>> [up, up, left, down, right]
 
-    print("\n~~~ A* - Heuristic 2: 'count_correct_positions' ~~~")
+    print("\n~~~ A* - Heuristic 2: 'count_wrong_positions' ~~~")
     puzzle = EightPuzzle(init_state, goal_state)
-    solver = Solver(puzzle, AStarSearch(goal_state, heuristics.count_correct_positions))
+    solver = Solver(puzzle, AStarSearch(goal_state, heuristics.count_wrong_positions))
 
     print("--- Exhaustive search ---")
     print(solver.solve(True))
-    # >>> Expansions to finish: 2665
+    # >>> Expansions to finish: 102
     # >>> [up, up, left, down, right]
 
     print("--- Lazy search ---")
     print(solver.solve(False))
-    # >>> Expansions to finish: 1724
+    # >>> Expansions to finish: 6
     # >>> [up, up, left, down, right]
 
 
