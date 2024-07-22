@@ -72,8 +72,8 @@ class NPuzzleSolver:
         self.solution = best_history
         return best_history
 
-    @staticmethod
-    def is_solvable(game: NPuzzleGame) -> bool:
+    @classmethod
+    def is_solvable(cls, game: NPuzzleGame) -> bool:
         """
         Checks whether the current game is solvable, i.e. if its `board` state
         can be tranformed into the `goal_board`.
@@ -91,9 +91,16 @@ class NPuzzleSolver:
         parity_goal = game.board.step_distance(empty_start_pos, empty_goal_pos) % 2
 
         # Determine "start board parity"
+        swaps_count = cls.count_required_transpositions(game.board, game.goal_board)
+        parity_start = swaps_count % 2
+
+        return parity_goal == parity_start
+
+    @staticmethod
+    def count_required_transpositions(start_board: NPuzzleBoard, goal_board: NPuzzleBoard) -> int:
         def flatten(arr): return [val for row in arr for val in row]
-        start = flatten(game.board.state)
-        goal = flatten(game.goal_board.state)
+        start = flatten(start_board.state)
+        goal = flatten(goal_board.state)
 
         swaps_count = 0
         for goal_i, v in enumerate(goal):
@@ -118,8 +125,7 @@ class NPuzzleSolver:
             else:
                 # already on correct pos
                 continue
-        parity_start = swaps_count % 2
-        return parity_goal == parity_start
+        return swaps_count
 
     def next_solution_step(self):
         if self.solution is None:
