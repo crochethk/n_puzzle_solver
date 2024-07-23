@@ -7,7 +7,6 @@ from n_puzzle_solver import NPuzzleSolver
 from search_strategy import AStarSearch
 from vec2 import Vec2
 
-from n_puzzle_solver import NPuzzleSolver
 
 # Set this to None, to get different sequences of boards every execution
 THE_SEED = 42
@@ -21,7 +20,8 @@ THE_SEED = 42
 
 THE_INITIAL_BOARD = NPuzzleBoard([[2, 8, 3], [1, 6, 4], [7, None, 5]])
 THE_GOAL_BOARD = NPuzzleBoard([[1, 2, 3], [8, None, 4], [7, 6, 5]])
-THE_STRATEGY = AStarSearch(THE_GOAL_BOARD, heuristics.cumulative_distance)
+# THE_STRATEGY = AStarSearch(THE_GOAL_BOARD, heuristics.cumulative_distance)
+THE_STRATEGY = AStarSearch(THE_GOAL_BOARD, heuristics.cumulative_distance_with_linear_conflicts)
 
 WINDOW_POS = Vec2(50, 150)
 # WINDOW_POS = Vec2(-500, 150)
