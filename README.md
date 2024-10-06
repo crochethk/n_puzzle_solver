@@ -8,6 +8,19 @@ of arbitrary (`sqrt(N+1) x sqrt(N+1)`) sizes.
 
 Also included is a basic GUI, implemented using Tkinter, that visualizes the solving steps.
 
+<table>
+    <tr>
+        <td>
+            <img src="puzzle_start.png" alt="Gui while calculating solution steps" width=90%>
+            <p>GUI while calculating solution steps</p>
+        </td>
+        <td>
+            <img src="puzzle_done.png" alt="Gui after clicking 'next' button until puzzle is solved" width=90%>
+            <p>GUI after clicking 'next' button until puzzle is solved</p>
+        </td>
+    </tr>
+</table>
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
